@@ -30,28 +30,29 @@
 
   <!-- Auto GitHub API Script -->
   <script>
-    fetch("https://api.github.com/users/ammar-shaikh07/repos")
-      .then(res => res.json())
-      .then(data => {
-        let box = document.getElementById("projects");
+  fetch("https://api.github.com/users/ammar-shaikh07/repos")
+    .then(res => res.json())
+    .then(data => {
+      let box = document.getElementById("projects");
 
-        data.forEach(repo => {
-          // skip forks & useless repos
-          if (repo.fork) return;
+      data.forEach(repo => {
+        // Skip forks + skip your portfolio repo
+        if (repo.fork) return;
+        if (repo.name.toLowerCase().includes("portfolio")) return;
 
-          box.innerHTML += `
-            <article class="card">
-              <h3>${repo.name}</h3>
-              <p>${repo.description || "No description available"}</p>
-              <p class="meta">Updated: ${new Date(repo.updated_at).toDateString()}</p>
-              <a href="${repo.html_url}" target="_blank" style="color:#FFD166;font-weight:600">
-                View Project →
-              </a>
-            </article>
-          `;
-        });
+        box.innerHTML += `
+          <article class="card">
+            <h3>${repo.name}</h3>
+            <p>${repo.description || "No description available"}</p>
+            <p class="meta">Updated: ${new Date(repo.updated_at).toDateString()}</p>
+            <a href="${repo.html_url}" target="_blank" style="color:#FFD166;font-weight:600">
+              View Project →
+            </a>
+          </article>
+        `;
       });
-  </script>
+    });
+</script>
 
 </body>
 </html>
