@@ -30,58 +30,55 @@
 
   <!-- Auto GitHub API Script -->
  <script>
-  async function loadProjects() {
-    const res = await fetch("https://api.github.com/users/ammar-shaikh07/repos");
-    const repos = await res.json();
-    const box = document.getElementById("projects");
+  fetch("https://api.github.com/users/ammar-shaikh07/repos")
+    .then(res => res.json())
+    .then(data => {
+      let box = document.getElementById("projects");
 
-    for (let repo of repos) {
+      data.forEach(repo => {
+        if (repo.fork) return;
 
-      // --- Skip forks + skip portfolio repo ---
-      if (repo.fork) continue;
-      if (repo.name.toLowerCase().includes("portfolio")) continue;
+        // LIVE LINK LOGIC 🔥
+        let liveLink = "";
 
-      // --- Check for APK file in repo ---
-      let apkLink = null;
-      try {
-        const files = await fetch(repo.contents_url.replace("{+path}", "")).then(r => r.json());
-        const apkFile = files.find(f => f.name.endsWith(".apk"));
-        if (apkFile) apkLink = apkFile.download_url;
-      } catch (e) {}
+        // 1) Portfolio repo
+        if (repo.name.toLowerCase().includes("portfolio")) {
+          liveLink = `https://ammar-shaikh07.github.io/${repo.name}/`;
+        }
 
-      // --- Auto GitHub Pages Website Link ---
-      let liveLink = null;
-      if (repo.has_pages) {
-        liveLink = `https://${repo.owner.login}.github.io/${repo.name}/`;
-      }
+        // 2) Any repo having Web Files (index.html present)
+        else if (repo.has_pages) {
+          liveLink = `https://ammar-shaikh07.github.io/${repo.name}/`;
+        }
 
-      // --- Add HTML Card ---
-      box.innerHTML += `
-        <article class="card">
-          <h3>${repo.name}</h3>
-          <p>${repo.description || "No description available"}</p>
-          <p class="meta">Updated: ${new Date(repo.updated_at).toDateString()}</p>
+        // 3) APK logic (APK inside release)
+        else if (repo.name.toLowerCase().includes("unity") || repo.name.toLowerCase().includes("game")) {
+          liveLink = `https://github.com/ammar-shaikh07/${repo.name}/releases`;  
+        }
 
-          <a href="${repo.html_url}" target="_blank" style="color:#FFD166;font-weight:600">
-            View Code →
-          </a>
+        // CARD UI
+        box.innerHTML += `
+          <article class="card">
+            <h3>${repo.name}</h3>
+            <p>${repo.description || "No description available"}</p>
+            <p class="meta">Updated: ${new Date(repo.updated_at).toDateString()}</p>
 
-          ${liveLink ? `
-            <a href="${liveLink}" target="_blank" style="color:#4DA3FF;font-weight:600">
-              Live Site →
-            </a>` : ""}
+            <a href="${repo.html_url}" target="_blank" style="color:#FFD166;font-weight:600">
+              View Code →
+            </a>
 
-          ${apkLink ? `
-            <a href="${apkLink}" target="_blank" style="color:#4CAF50;font-weight:600">
-              Download APK →
-            </a>` : ""}
-        </article>
-      `;
-    }
-  }
-
-  loadProjects();
+            ${ liveLink
+                ? `<a href="${liveLink}" target="_blank" style="color:#42f57b;font-weight:600; margin-left:12px">
+                     ${repo.name.toLowerCase().includes("unity") ? "Download APK →" : "Live Website →"}
+                   </a>`
+                : ""
+            }
+          </article>
+        `;
+      });
+    });
 </script>
+
 
 
 </body>
