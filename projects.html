@@ -37,32 +37,22 @@
 
       data.forEach(repo => {
 
-        // Skip forks
         if (repo.fork) return;
-
-        // Skip portfolio repo
         if (repo.name.toLowerCase().includes("portfolio")) return;
 
-        // Check if repo is a GAME (has APK)
-        let apkURL = `https://raw.githubusercontent.com/ammar-shaikh07/${repo.name}/main/Tap-Counter.apk`;
+        // Default
+        let isWebsite = repo.has_pages;
+        let isGame = false;
 
-        // Check if repo is a WEBSITE (GitHub Pages)
+        // Special case: your game repo
+        if (repo.name === "Tap-Counter-Unity-Game") {
+          isWebsite = false;
+          isGame = true;
+        }
+
+        let apkURL = `https://raw.githubusercontent.com/ammar-shaikh07/${repo.name}/main/Tap-Counter.apk`;
         let liveURL = `https://ammar-shaikh07.github.io/${repo.name}/`;
 
-        // Detect if website exists
-        let isWebsite =
-          repo.name.toLowerCase().includes("web") ||
-          repo.name.toLowerCase().includes("site") ||
-          repo.name.toLowerCase().includes("portfolio") ||
-          repo.has_pages;
-
-        // Detect if game (APK file)
-        let isGame =
-          repo.name.toLowerCase().includes("game") ||
-          repo.name.toLowerCase().includes("counter") ||
-          repo.name.toLowerCase().includes("tap");
-
-        // Build UI
         box.innerHTML += `
           <article class="card">
             <h3>${repo.name}</h3>
@@ -79,6 +69,7 @@
       });
     });
 </script>
+
 
 
 
