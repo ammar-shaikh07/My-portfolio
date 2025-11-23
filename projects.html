@@ -29,30 +29,60 @@
   <footer class="footer">© 2025 Shaikh Mohammad Ammar</footer>
 
   <!-- Auto GitHub API Script -->
-  <script>
-  fetch("https://api.github.com/users/ammar-shaikh07/repos")
-    .then(res => res.json())
-    .then(data => {
-      let box = document.getElementById("projects");
+ <script>
+  async function loadProjects() {
+    const res = await fetch("https://api.github.com/users/ammar-shaikh07/repos");
+    const repos = await res.json();
+    const box = document.getElementById("projects");
 
-      data.forEach(repo => {
-        // Skip forks + skip your portfolio repo
-        if (repo.fork) return;
-        if (repo.name.toLowerCase().includes("portfolio")) return;
+    for (let repo of repos) {
+      if (repo.fork) continue;
 
-        box.innerHTML += `
-          <article class="card">
-            <h3>${repo.name}</h3>
-            <p>${repo.description || "No description available"}</p>
-            <p class="meta">Updated: ${new Date(repo.updated_at).toDateString()}</p>
-            <a href="${repo.html_url}" target="_blank" style="color:#FFD166;font-weight:600">
-              View Project →
-            </a>
-          </article>
-        `;
-      });
-    });
+      // --- Find APK File ---
+      const contents = await fetch(repo.contents_url.replace("{+path}", "")).then(r => r.json());
+      let apk = contents.find(f => f.name.endsWith(".apk"));
+      let apkLink = apk ? apk.download_url : null;
+
+      // --- Auto Website Link (GitHub Pages) ---
+      let liveLink = null;
+      if (repo.has_pages) {
+        liveLink = `https://${repo.owner.login}.github.io/${repo.name}/`;
+      }
+
+      // --- Render Card ---
+      box.innerHTML += `
+        <article class="card">
+          <h3>${repo.name}</h3>
+          <p>${repo.description || "No description available"}</p>
+          <p class="meta">Updated: ${new Date(repo.updated_at).toDateString()}</p>
+
+          <a href="${repo.html_url}" target="_blank" class="project-btn" style="color:#FFD166;font-weight:600">
+            View Code →
+          </a>
+
+          ${
+            liveLink
+              ? `<a href="${liveLink}" target="_blank" class="project-btn" style="color:#4DA3FF;font-weight:600">
+                  Live Website →
+                 </a>`
+              : ""
+          }
+
+          ${
+            apkLink
+              ? `<a href="${apkLink}" target="_blank" class="project-btn" style="color:#4CAF50;font-weight:600">
+                  Download APK →
+                 </a>`
+              : ""
+          }
+        </article>
+      `;
+    }
+  }
+
+  loadProjects();
 </script>
+
 
 </body>
 </html>
