@@ -37,42 +37,20 @@
 
       data.forEach(repo => {
         if (repo.fork) return;
+        if (repo.name.toLowerCase().includes("portfolio")) return;
 
-        // LIVE LINK LOGIC 🔥
-        let liveLink = "";
+        let liveLink = `https://ammar-shaikh07.github.io/${repo.name}/`;
+        let apkLink = `https://raw.githubusercontent.com/ammar-shaikh07/${repo.name}/main/Build/TapCounter.apk`;
 
-        // 1) Portfolio repo
-        if (repo.name.toLowerCase().includes("portfolio")) {
-          liveLink = `https://ammar-shaikh07.github.io/${repo.name}/`;
-        }
-
-        // 2) Any repo having Web Files (index.html present)
-        else if (repo.has_pages) {
-          liveLink = `https://ammar-shaikh07.github.io/${repo.name}/`;
-        }
-
-        // 3) APK logic (APK inside release)
-        else if (repo.name.toLowerCase().includes("unity") || repo.name.toLowerCase().includes("game")) {
-          liveLink = `https://github.com/ammar-shaikh07/${repo.name}/releases`;  
-        }
-
-        // CARD UI
         box.innerHTML += `
           <article class="card">
             <h3>${repo.name}</h3>
             <p>${repo.description || "No description available"}</p>
             <p class="meta">Updated: ${new Date(repo.updated_at).toDateString()}</p>
 
-            <a href="${repo.html_url}" target="_blank" style="color:#FFD166;font-weight:600">
-              View Code →
-            </a>
-
-            ${ liveLink
-                ? `<a href="${liveLink}" target="_blank" style="color:#42f57b;font-weight:600; margin-left:12px">
-                     ${repo.name.toLowerCase().includes("unity") ? "Download APK →" : "Live Website →"}
-                   </a>`
-                : ""
-            }
+            <a href="${repo.html_url}" target="_blank">View Code →</a>
+            <a href="${liveLink}" target="_blank">Live Website →</a>
+            <a href="${apkLink}" target="_blank">Download APK →</a>
           </article>
         `;
       });
