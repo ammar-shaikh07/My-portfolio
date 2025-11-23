@@ -36,45 +36,45 @@
     const box = document.getElementById("projects");
 
     for (let repo of repos) {
+
+      // --- Skip forks + skip portfolio repo ---
       if (repo.fork) continue;
+      if (repo.name.toLowerCase().includes("portfolio")) continue;
 
-      // --- Find APK File ---
-      const contents = await fetch(repo.contents_url.replace("{+path}", "")).then(r => r.json());
-      let apk = contents.find(f => f.name.endsWith(".apk"));
-      let apkLink = apk ? apk.download_url : null;
+      // --- Check for APK file in repo ---
+      let apkLink = null;
+      try {
+        const files = await fetch(repo.contents_url.replace("{+path}", "")).then(r => r.json());
+        const apkFile = files.find(f => f.name.endsWith(".apk"));
+        if (apkFile) apkLink = apkFile.download_url;
+      } catch (e) {}
 
-      // --- Auto Website Link (GitHub Pages) ---
+      // --- Auto GitHub Pages Website Link ---
       let liveLink = null;
       if (repo.has_pages) {
         liveLink = `https://${repo.owner.login}.github.io/${repo.name}/`;
       }
 
-      // --- Render Card ---
+      // --- Add HTML Card ---
       box.innerHTML += `
         <article class="card">
           <h3>${repo.name}</h3>
           <p>${repo.description || "No description available"}</p>
           <p class="meta">Updated: ${new Date(repo.updated_at).toDateString()}</p>
 
-          <a href="${repo.html_url}" target="_blank" class="project-btn" style="color:#FFD166;font-weight:600">
+          <a href="${repo.html_url}" target="_blank" style="color:#FFD166;font-weight:600">
             View Code →
           </a>
 
-          ${
-            liveLink
-              ? `<a href="${liveLink}" target="_blank" class="project-btn" style="color:#4DA3FF;font-weight:600">
-                  Live Website →
-                 </a>`
-              : ""
-          }
+          ${liveLink ? `
+            <a href="${liveLink}" target="_blank" style="color:#4DA3FF;font-weight:600">
+              Live Site →
+            </a>` : ""}
 
-          ${
-            apkLink
-              ? `<a href="${apkLink}" target="_blank" class="project-btn" style="color:#4CAF50;font-weight:600">
-                  Download APK →
-                 </a>`
-              : ""
-          }
+          ${apkLink ? `
+            <a href="${apkLink}" target="_blank" style="color:#4CAF50;font-weight:600">
+              Download APK →
+            </a>` : ""}
         </article>
       `;
     }
