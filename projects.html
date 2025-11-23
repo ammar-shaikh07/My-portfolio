@@ -32,16 +32,28 @@
  <script>
   fetch("https://api.github.com/users/ammar-shaikh07/repos")
     .then(res => res.json())
-    .then(data => {
+    .then(async repos => {
       let box = document.getElementById("projects");
 
-      data.forEach(repo => {
-        if (repo.fork) return;
-        if (repo.name.toLowerCase().includes("portfolio")) return;
+      for (let repo of repos) {
+        if (repo.fork) continue;
+        if (repo.name.toLowerCase().includes("portfolio")) continue;
 
         let liveLink = `https://ammar-shaikh07.github.io/${repo.name}/`;
-        let apkLink = `https://raw.githubusercontent.com/ammar-shaikh07/${repo.name}/main/Build/TapCounter.apk`;
+        let repoName = repo.name;
 
+        // --- CHECK IF APK FILE EXISTS ---
+        let apkPath = `https://raw.githubusercontent.com/ammar-shaikh07/${repoName}/main/TapCounter.apk`;
+
+        let apkExists = await fetch(apkPath)
+          .then(r => r.status === 200)
+          .catch(() => false);
+
+        let apkButton = apkExists
+          ? `<a href="${apkPath}" target="_blank">Download APK →</a>`
+          : ``;
+
+        // --- BUILD CARD ---
         box.innerHTML += `
           <article class="card">
             <h3>${repo.name}</h3>
@@ -50,13 +62,12 @@
 
             <a href="${repo.html_url}" target="_blank">View Code →</a>
             <a href="${liveLink}" target="_blank">Live Website →</a>
-            <a href="${apkLink}" target="_blank">Download APK →</a>
+            ${apkButton}
           </article>
         `;
-      });
+      }
     });
 </script>
-
 
 
 </body>
