@@ -32,28 +32,37 @@
  <script>
   fetch("https://api.github.com/users/ammar-shaikh07/repos")
     .then(res => res.json())
-    .then(async repos => {
+    .then(data => {
       let box = document.getElementById("projects");
 
-      for (let repo of repos) {
-        if (repo.fork) continue;
-        if (repo.name.toLowerCase().includes("portfolio")) continue;
+      data.forEach(repo => {
 
-        let liveLink = `https://ammar-shaikh07.github.io/${repo.name}/`;
-        let repoName = repo.name;
+        // Skip forks
+        if (repo.fork) return;
 
-        // --- CHECK IF APK FILE EXISTS ---
-        let apkPath = `https://raw.githubusercontent.com/ammar-shaikh07/${repoName}/main/TapCounter.apk`;
+        // Skip portfolio repo
+        if (repo.name.toLowerCase().includes("portfolio")) return;
 
-        let apkExists = await fetch(apkPath)
-          .then(r => r.status === 200)
-          .catch(() => false);
+        // Check if repo is a GAME (has APK)
+        let apkURL = `https://raw.githubusercontent.com/ammar-shaikh07/${repo.name}/main/Tap-Counter.apk`;
 
-        let apkButton = apkExists
-          ? `<a href="${apkPath}" target="_blank">Download APK →</a>`
-          : ``;
+        // Check if repo is a WEBSITE (GitHub Pages)
+        let liveURL = `https://ammar-shaikh07.github.io/${repo.name}/`;
 
-        // --- BUILD CARD ---
+        // Detect if website exists
+        let isWebsite =
+          repo.name.toLowerCase().includes("web") ||
+          repo.name.toLowerCase().includes("site") ||
+          repo.name.toLowerCase().includes("portfolio") ||
+          repo.has_pages;
+
+        // Detect if game (APK file)
+        let isGame =
+          repo.name.toLowerCase().includes("game") ||
+          repo.name.toLowerCase().includes("counter") ||
+          repo.name.toLowerCase().includes("tap");
+
+        // Build UI
         box.innerHTML += `
           <article class="card">
             <h3>${repo.name}</h3>
@@ -61,13 +70,16 @@
             <p class="meta">Updated: ${new Date(repo.updated_at).toDateString()}</p>
 
             <a href="${repo.html_url}" target="_blank">View Code →</a>
-            <a href="${liveLink}" target="_blank">Live Website →</a>
-            ${apkButton}
+
+            ${isWebsite ? `<a href="${liveURL}" target="_blank">Live Website →</a>` : ""}
+
+            ${isGame ? `<a href="${apkURL}" download>Download APK →</a>` : ""}
           </article>
         `;
-      }
+      });
     });
 </script>
+
 
 
 </body>
