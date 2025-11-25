@@ -6,44 +6,20 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Ammar Shaikh — Home</title>
   <link rel="stylesheet" href="style.css">
-
-  <style>
-    /* Theme selector style */
-    #themeSelector {
-      padding: 6px 10px;
-      border-radius: 8px;
-      border: none;
-      background: rgba(255, 255, 255, 0.15);
-      color: white;
-      font-weight: 600;
-      outline: none;
-      cursor: pointer;
-      backdrop-filter: blur(6px);
-    }
-
-    #themeSelector option {
-      color: black;
-    }
-  </style>
 </head>
 
 <body>
   <header class="nav">
-    <div class="logo">Ammar</div>
+    <div class="logo"></div>
+
     <nav>
       <a href="index.html" class="active">Home</a>
       <a href="skills.html">Skills</a>
       <a href="projects.html">Projects</a>
       <a href="about.html">About</a>
       <a href="contact.html">Contact</a>
-
-      <select id="themeSelector" onchange="changeTheme()">
-        <option value="green">Green Gradient</option>
-        <option value="blue">Blue Gradient</option>
-        <option value="light">Light</option>
-        <option value="dark">Dark</option>
-      </select>
     </nav>
+
   </header>
 
   <main class="hero">
@@ -55,11 +31,25 @@
 
       <div class="cta-row">
         <a class="btn" href="projects.html">See Projects</a>
-        <a class="btn ghost" href="contact.html">Contact</a>
       </div>
     </div>
   </main>
+
   <footer class="footer">© 2025 Shaikh Mohammad Ammar</footer>
-  <script src="script.js"></script>
+
+  <script>
+    // Highlight active nav link
+    document.addEventListener("DOMContentLoaded", () => {
+      const navLinks = document.querySelectorAll("header.nav nav a");
+      navLinks.forEach(link => {
+        const current = location.pathname.split("/").pop();
+        const target = link.getAttribute("href");
+        if ((current === "" && target === "index.html") || current === target) {
+          link.classList.add("active");
+        }
+      });
+    });
+  </script>
+
 </body>
 </html>
