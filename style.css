@@ -11,17 +11,32 @@ body {
 /* NAVBAR */
 .nav {
   display:flex;
+  flex-direction: column; /* Mobile support ke liye */
   justify-content:center;
   align-items:center;
-  gap:30px;
   padding:18px 20px;
   background: rgba(255,255,255,0.03);
   backdrop-filter: blur(6px);
 }
 
+/* MENU BUTTON (MOBILE ONLY) */
+.menu-btn {
+  font-size: 28px;
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  display: none; /* Desktop hidden */
+  margin-bottom: 10px;
+}
+
+/* NAV MENU */
 .nav nav {
   display:flex;
   gap:18px;
+  transition: max-height 0.45s ease;
+  overflow: hidden;       /* Slide effect */
+  max-height: none;       /* Desktop default */
 }
 
 .nav nav a {
@@ -94,7 +109,21 @@ h1 { font-size:32px; margin:10px 0; }
 
 /* RESPONSIVE */
 @media(max-width:720px) {
-  .nav nav { gap:10px; }
+  
+  /* Mobile menu button visible */
+  .menu-btn {
+    display: block;
+  }
+
+  /* Nav menu becomes slide */
+  .nav nav {
+    flex-direction: column;
+    gap:12px;
+    width:100%;
+    text-align:center;
+    max-height: 0px; /* Hidden by default */
+  }
+
   .photo { width:120px; height:120px; }
   h1 { font-size:26px; }
 }
