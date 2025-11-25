@@ -21,21 +21,25 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-function changeTheme() {
-    const theme = document.getElementById("themeSelector").value;
+// ========================================
+// MOBILE MENU SLIDE TOGGLE
+// ========================================
+const menuBtn = document.getElementById("menuBtn");
+const navMenu = document.getElementById("navMenu");
 
-    // Remove old theme classes
-    document.body.classList.remove("theme-blue", "theme-light", "theme-dark");
+// Setup slide animation
+if (navMenu) {
+  navMenu.style.maxHeight = "0px";
+  navMenu.style.overflow = "hidden";
+  navMenu.style.transition = "max-height 0.45s ease";
+}
 
-    // Apply new theme
-    if (theme === "blue") {
-        document.body.classList.add("theme-blue");
-    } 
-    else if (theme === "light") {
-        document.body.classList.add("theme-light");
-    } 
-    else if (theme === "dark") {
-        document.body.classList.add("theme-dark");
+if (menuBtn) {
+  menuBtn.addEventListener("click", () => {
+    if (navMenu.style.maxHeight === "0px") {
+      navMenu.style.maxHeight = navMenu.scrollHeight + "px";
+    } else {
+      navMenu.style.maxHeight = "0px";
     }
-    // Green = default, nothing to add
+  });
 }
