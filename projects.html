@@ -3,13 +3,12 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Projects — Ammar Shaikh</title>
+  <title>Projects — Shaikh Mohammad Ammar</title>
   <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
   <header class="nav">
-    <div class="logo">Ammar</div>
     <nav>
       <a href="index.html">Home</a>
       <a href="skills.html">Skills</a>
@@ -21,57 +20,45 @@
 
   <main class="page">
     <h2>Projects</h2>
-
-    <!-- Auto loaded GitHub Projects -->
     <div id="projects" class="projects"></div>
   </main>
 
   <footer class="footer">© 2025 Shaikh Mohammad Ammar</footer>
 
-  <!-- Auto GitHub API Script -->
- <script>
-  fetch("https://api.github.com/users/ammar-shaikh07/repos")
-    .then(res => res.json())
-    .then(data => {
-      let box = document.getElementById("projects");
+  <script>
+    fetch("https://api.github.com/users/ammar-shaikh07/repos")
+      .then(res => res.json())
+      .then(data => {
+        let box = document.getElementById("projects");
 
-      data.forEach(repo => {
+        data.forEach(repo => {
+          if (repo.fork) return;
+          if (repo.name.toLowerCase().includes("portfolio")) return;
 
-        if (repo.fork) return;
-        if (repo.name.toLowerCase().includes("portfolio")) return;
+          let isWebsite = repo.has_pages;
+          let isGame = false;
 
-        // Default
-        let isWebsite = repo.has_pages;
-        let isGame = false;
+          if (repo.name === "Tap-Counter-Unity-Game") {
+            isWebsite = false;
+            isGame = true;
+          }
 
-        // Special case: your game repo
-        if (repo.name === "Tap-Counter-Unity-Game") {
-          isWebsite = false;
-          isGame = true;
-        }
+          let apkURL = `https://raw.githubusercontent.com/ammar-shaikh07/${repo.name}/main/Tap-Counter.apk`;
+          let liveURL = `https://ammar-shaikh07.github.io/${repo.name}/`;
 
-        let apkURL = `https://raw.githubusercontent.com/ammar-shaikh07/${repo.name}/main/Tap-Counter.apk`;
-        let liveURL = `https://ammar-shaikh07.github.io/${repo.name}/`;
+          box.innerHTML += `
+            <article class="card">
+              <h3>${repo.name}</h3>
+              <p>${repo.description || "No description available"}</p>
+              <p class="meta">Updated: ${new Date(repo.updated_at).toDateString()}</p>
 
-        box.innerHTML += `
-          <article class="card">
-            <h3>${repo.name}</h3>
-            <p>${repo.description || "No description available"}</p>
-            <p class="meta">Updated: ${new Date(repo.updated_at).toDateString()}</p>
-
-            <a href="${repo.html_url}" target="_blank">View Code →</a>
-
-            ${isWebsite ? `<a href="${liveURL}" target="_blank">Live Website →</a>` : ""}
-
-            ${isGame ? `<a href="${apkURL}" download>Download APK →</a>` : ""}
-          </article>
-        `;
+              <a href="${repo.html_url}" target="_blank">View Code →</a>
+              ${isWebsite ? `<a href="${liveURL}" target="_blank">Live Website →</a>` : ""}
+              ${isGame ? `<a href="${apkURL}" download>Download APK →</a>` : ""}
+            </article>
+          `;
+        });
       });
-    });
-</script>
-
-
-
-
+  </script>
 </body>
 </html>
