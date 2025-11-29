@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -7,46 +8,69 @@
   <link rel="stylesheet" href="style.css">
 
   <style>
-    /* Project Card Border */
-    .projects .card {
-      border: 2px solid rgba(255,255,255,0.25);
-      border-radius: 12px;
-      padding: 18px;
-      margin: 15px 0;
-      background: rgba(255,255,255,0.05);
-      backdrop-filter: blur(4px);
+    /* ⭐ NEW IMPROVEMENT — GRID LAYOUT */
+    .projects {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
     }
 
-    /* Preview Button */
+    /* ⭐ Card Border (OLD — kept exactly same but improved hover) */
+    .projects .card {
+      border: 2px solid rgba(255, 255, 255, 0.25);
+      border-radius: 12px;
+      padding: 18px;
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(4px);
+      transition: 0.3s;
+    }
+
+    .projects .card:hover {
+      transform: translateY(-5px);
+      border-color: rgba(255, 255, 255, 0.5);
+    }
+
+    /* ⭐ Tags */
+    .tag {
+      display: inline-block;
+      padding: 4px 10px;
+      background: rgba(255, 255, 255, 0.12);
+      border-radius: 6px;
+      margin: 3px;
+      font-size: 12px;
+    }
+
+    /* ⭐ Preview Button */
     .preview-btn {
-      background: rgba(255,255,255,0.15);
+      background: rgba(255, 255, 255, 0.15);
       color: white;
       padding: 8px 15px;
       border-radius: 8px;
-      display: inline-block;
-      margin-bottom: 10px;
       cursor: pointer;
       border: none;
       font-weight: bold;
+      margin-bottom: 10px;
     }
 
-    /* Image Modal */
+    /* ⭐ Modal */
     .modal {
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.9);
+      background: rgba(0, 0, 0, 0.9);
       justify-content: center;
       align-items: center;
-      z-index: 9999;
       flex-direction: column;
+      z-index: 9998;
     }
+
     .modal img {
       max-width: 90%;
       max-height: 80%;
       border-radius: 10px;
       border: 3px solid white;
     }
+
     .modal-close {
       position: absolute;
       top: 20px;
@@ -56,14 +80,8 @@
       border-radius: 5px;
       cursor: pointer;
       font-weight: bold;
-      color: black;
     }
 
-    .modal-nav {
-      margin-top: 15px;
-      display: flex;
-      gap: 15px;
-    }
     .modal-btn {
       background: white;
       color: black;
@@ -71,125 +89,173 @@
       border-radius: 6px;
       cursor: pointer;
       font-weight: bold;
+      margin: 10px;
+    }
+
+    /* ⭐ Loading Skeleton */
+    #loading {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    .load-box {
+      height: 170px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      animation: pulse 1.2s infinite ease-in-out;
+    }
+
+    @keyframes pulse {
+      0% {
+        opacity: .5;
+      }
+
+      50% {
+        opacity: 1;
+      }
+
+      100% {
+        opacity: .5;
+      }
     }
   </style>
 </head>
 
 <body>
 
-<header class="nav">
+  <header class="nav">
     <a href="index.html">Home</a>
     <a href="skills.html">Skills</a>
     <a href="projects.html">Projects</a>
     <a href="about.html">About</a>
     <a href="contact.html">Contact</a>
-</header>
+  </header>
 
-<main class="page">
-  <h2>Projects</h2>
-  <div id="projects" class="projects"></div>
-</main>
+  <main class="page">
+    <h2>Projects (<span id="count"></span>)</h2>
 
-<footer class="footer">© 2025 Shaikh Mohammad Ammar</footer>
+    <!-- ⭐ Loading Boxes -->
+    <div id="loading">
+      <div class="load-box"></div>
+      <div class="load-box"></div>
+      <div class="load-box"></div>
+    </div>
 
-<!-- MODAL -->
-<div id="imgModal" class="modal">
-  <span class="modal-close" onclick="closeModal()">X</span>
-  <img id="modalImage" src="">
+    <div id="projects" class="projects"></div>
+  </main>
 
-  <div class="modal-nav">
+  <footer class="footer">© 2025 Shaikh Mohammad Ammar</footer>
+
+  <!-- ⭐ Image Modal -->
+  <div id="imgModal" class="modal">
+    <span class="modal-close" onclick="closeModal()">X</span>
+    <img id="modalImage" src="">
     <button class="modal-btn" onclick="prevImg()">Prev</button>
     <button class="modal-btn" onclick="nextImg()">Next</button>
   </div>
-</div>
 
-<script>
-  let currentImages = [];
-  let currentIndex = 0;
+  <script>
+    let currentImages = [];
+    let currentIndex = 0;
 
-  function openModal(imgArray) {
-    currentImages = imgArray;
-    currentIndex = 0;
-    document.getElementById("modalImage").src = imgArray[0];
-    document.getElementById("imgModal").style.display = "flex";
-  }
+    function openModal(arr) {
+      currentImages = arr;
+      currentIndex = 0;
+      document.getElementById("modalImage").src = arr[0];
+      document.getElementById("imgModal").style.display = "flex";
+    }
 
-  function closeModal() {
-    document.getElementById("imgModal").style.display = "none";
-  }
+    function closeModal() {
+      document.getElementById("imgModal").style.display = "none";
+    }
 
-  function nextImg() {
-    currentIndex = (currentIndex + 1) % currentImages.length;
-    document.getElementById("modalImage").src = currentImages[currentIndex];
-  }
+    function nextImg() {
+      currentIndex = (currentIndex + 1) % currentImages.length;
+      document.getElementById("modalImage").src = currentImages[currentIndex];
+    }
 
-  function prevImg() {
-    currentIndex = (currentIndex - 1 + currentImages.length) % currentImages.length;
-    document.getElementById("modalImage").src = currentImages[currentIndex];
-  }
+    function prevImg() {
+      currentIndex = (currentIndex - 1 + currentImages.length) % currentImages.length;
+      document.getElementById("modalImage").src = currentImages[currentIndex];
+    }
 
-  // LOAD PROJECTS
-  fetch("https://api.github.com/users/ammar-shaikh07/repos")
-    .then(res => res.json())
-    .then(async repos => {
-      let box = document.getElementById("projects");
+    /* ⭐ Auto Load Projects */
+    fetch("https://api.github.com/users/ammar-shaikh07/repos")
+      .then(r => r.json())
+      .then(async repos => {
 
-      for (let repo of repos) {
-        if (repo.fork) continue;
-        if (repo.name.toLowerCase().includes("portfolio")) continue;
+        let box = document.getElementById("projects");
+        let count = 0;
 
-        let liveURL = `https://ammar-shaikh07.github.io/${repo.name}/`;
+        for (let repo of repos) {
 
-        // AUTO IMAGE DETECTION
-        let images = [];
-        for (let i = 1; i <= 10; i++) {
-          let imgURL = `https://raw.githubusercontent.com/ammar-shaikh07/${repo.name}/main/images/${i}.png`;
+          if (repo.fork) continue;
+          if (repo.name.toLowerCase().includes("portfolio"))
+            continue;
 
+          count++;
+
+          let liveURL = `https://ammar-shaikh07.github.io/${repo.name}/`;
+
+          /* ⭐ Auto Image Loader: images/1.png ... images/10.png */
+          let images = [];
+          for (let i = 1; i <= 10; i++) {
+            let imgURL = `https://raw.githubusercontent.com/ammar-shaikh07/${repo.name}/main/images/${i}.png`;
+            let res = await fetch(imgURL);
+            if (res.ok) images.push(imgURL);
+          }
+
+          /* ⭐ APK Auto Detect (latest release) */
+          let apkURL = "";
           try {
-            let check = await fetch(imgURL);
-            if (check.ok) images.push(imgURL);
-          } catch (e) {}
+            let rel = await fetch(`https://api.github.com/repos/ammar-shaikh07/${repo.name}/releases`);
+            let data = await rel.json();
+            if (data.length > 0 && data[0].assets.length > 0) {
+              let apk = data[0].assets.find(a => a.name.endsWith(".apk"));
+              if (apk) apkURL = apk.browser_download_url;
+            }
+          } catch { }
+
+          /* ⭐ Tags (Tech Topics) */
+          let tagsHTML = "";
+          if (repo.topics.length > 0) {
+            tagsHTML = `<div>` +
+              repo.topics.map(t => `<span class="tag">${t}</span>`).join("") +
+              `</div>`;
+          }
+
+          /* ⭐ Card HTML */
+          box.innerHTML += `
+            <article class="card">
+              <h3>${repo.name}</h3>
+              <p>${repo.description || "No description available"}</p>
+              <p class="meta">Updated: ${new Date(repo.updated_at).toDateString()}</p>
+
+              ${tagsHTML}
+
+              ${images.length > 0 ? `
+                <button class="preview-btn" onclick='openModal(${JSON.stringify(images)})'>
+                  View Images
+                </button>
+              ` : ""}
+
+              <a href="${repo.html_url}" target="_blank">View Code →</a><br>
+
+              ${repo.has_pages ? `<a href="${liveURL}" target="_blank">Live Website →</a>` : ""}
+
+              ${apkURL ? `<a href="${apkURL}" download>Download APK →</a>` : ""}
+            </article>
+          `;
         }
 
-        // APK CHECK (for games)
-        let apkURL = "";
-        try {
-          let rel = await fetch(`https://api.github.com/repos/ammar-shaikh07/${repo.name}/releases`);
-          let releaseData = await rel.json();
+        /* ⭐ Update Count */
+        document.getElementById("count").innerText = count;
 
-          if (releaseData.length > 0 && releaseData[0].assets.length > 0) {
-            let apk = releaseData[0].assets.find(a => a.name.endsWith(".apk"));
-            if (apk) apkURL = apk.browser_download_url;
-          }
-        } catch (e) {}
-
-        // CARD
-        box.innerHTML += `
-          <article class="card">
-            <h3>${repo.name}</h3>
-            <p>${repo.description || "No description available"}</p>
-            <p class="meta">Updated: ${new Date(repo.updated_at).toDateString()}</p>
-
-            ${images.length > 0 ? `
-              <button class="preview-btn" onclick='openModal(${JSON.stringify(images)})'>
-                View Images
-              </button>` : ""
-            }
-
-            <br>
-
-            <a href="${repo.html_url}" target="_blank">View Code →</a><br>
-
-            ${(!apkURL && repo.has_pages) ? 
-              `<a href="${liveURL}" target="_blank">Live Website →</a>` 
-              : ""}
-
-            ${apkURL ? `<a href="${apkURL}" download>Download APK →</a>` : ""}
-          </article>
-        `;
-      }
-    });
-</script>
+        /* ⭐ Hide Loader */
+        document.getElementById("loading").style.display = "none";
+      });
+  </script>
 
 </body>
 </html>
