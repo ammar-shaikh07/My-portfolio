@@ -7,35 +7,36 @@
   <link rel="stylesheet" href="style.css">
 
   <style>
-    /* Popup Image Viewer */
-    #popup {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.8);
+    /* IMAGE MODAL */
+    .modal {
       display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.8);
       justify-content: center;
       align-items: center;
-      z-index: 9999;
+      z-index: 999;
     }
-    #popup img {
+    .modal img {
       max-width: 90%;
-      max-height: 90%;
       border-radius: 10px;
+      border: 3px solid white;
     }
-    #popup-close {
+    .modal-close {
       position: absolute;
       top: 20px;
-      right: 30px;
-      font-size: 30px;
-      color: white;
+      right: 20px;
+      background: white;
+      padding: 5px 12px;
+      border-radius: 5px;
       cursor: pointer;
+      font-weight: bold;
     }
   </style>
-
 </head>
 
 <body>
+
 <header class="nav">
     <a href="index.html">Home</a>
     <a href="skills.html">Skills</a>
@@ -51,13 +52,28 @@
 
 <footer class="footer">© 2025 Shaikh Mohammad Ammar</footer>
 
-<!-- Image Preview Popup -->
-<div id="popup">
-  <span id="popup-close">✖</span>
-  <img id="popup-img" src="">
+<!-- MODAL -->
+<div id="imgModal" class="modal">
+  <span class="modal-close" onclick="closeModal()">X</span>
+  <img id="modalImage" src="">
 </div>
 
 <script>
+  function openModal(src) {
+    document.getElementById("modalImage").src = src;
+    document.getElementById("imgModal").style.display = "flex";
+  }
+
+  function closeModal() {
+    document.getElementById("imgModal").style.display = "none";
+  }
+
+  const IMAGES = {
+    "Tap-Counter-Unity-Game": "tap.png",
+    "portfolio-website": "portfolio.png",
+    "MyAnotherGame": "game2.png"
+  };
+
   fetch("https://api.github.com/users/ammar-shaikh07/repos")
     .then(res => res.json())
     .then(data => {
@@ -75,9 +91,9 @@
           isGame = true;
         }
 
-        let previewImage = `https://raw.githubusercontent.com/ammar-shaikh07/${repo.name}/main/preview.png`;
-        let apkURL = `https://github.com/ammar-shaikh07/${repo.name}/releases/latest/download/Tap-Counter.apk`;
+        let apkURL = `https://raw.githubusercontent.com/ammar-shaikh07/${repo.name}/main/Tap-Counter.apk`;
         let liveURL = `https://ammar-shaikh07.github.io/${repo.name}/`;
+        let imgSrc = IMAGES[repo.name] ? `images/${IMAGES[repo.name]}` : null;
 
         box.innerHTML += `
           <article class="card">
@@ -85,7 +101,7 @@
             <p>${repo.description || "No description available"}</p>
             <p class="meta">Updated: ${new Date(repo.updated_at).toDateString()}</p>
 
-            <button onclick="showPreview('${previewImage}')">Preview Image</button>
+            ${imgSrc ? `<button onclick="openModal('${imgSrc}')">Preview Images</button>` : ""}
 
             <a href="${repo.html_url}" target="_blank">View Code →</a>
             ${isWebsite ? `<a href="${liveURL}" target="_blank">Live Website →</a>` : ""}
@@ -94,16 +110,6 @@
         `;
       });
     });
-
-  // Image Popup Logic
-  function showPreview(imgURL) {
-    document.getElementById("popup-img").src = imgURL;
-    document.getElementById("popup").style.display = "flex";
-  }
-
-  document.getElementById("popup-close").addEventListener("click", () => {
-    document.getElementById("popup").style.display = "none";
-  });
 </script>
 
 </body>
