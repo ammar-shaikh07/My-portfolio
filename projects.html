@@ -7,18 +7,43 @@
   <link rel="stylesheet" href="style.css">
 
   <style>
-    /* IMAGE MODAL */
+    /* Project Card Border */
+    .projects .card {
+      border: 2px solid rgba(255,255,255,0.25);
+      border-radius: 12px;
+      padding: 18px;
+      margin: 15px 0;
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(4px);
+    }
+
+    /* Preview Button */
+    .preview-btn {
+      background: rgba(255,255,255,0.15);
+      color: white;
+      padding: 8px 15px;
+      border-radius: 8px;
+      display: inline-block;
+      margin-bottom: 10px;
+      cursor: pointer;
+      border: none;
+      font-weight: bold;
+    }
+
+    /* Image Modal */
     .modal {
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.8);
+      background: rgba(0,0,0,0.9);
       justify-content: center;
       align-items: center;
-      z-index: 999;
+      z-index: 9999;
+      flex-direction: column;
     }
     .modal img {
       max-width: 90%;
+      max-height: 80%;
       border-radius: 10px;
       border: 3px solid white;
     }
@@ -31,7 +56,23 @@
       border-radius: 5px;
       cursor: pointer;
       font-weight: bold;
+      color: black;
     }
+
+    .modal-nav {
+      margin-top: 15px;
+      display: flex;
+      gap: 15px;
+    }
+    .modal-btn {
+      background: white;
+      color: black;
+      padding: 8px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
   </style>
 </head>
 
@@ -56,11 +97,21 @@
 <div id="imgModal" class="modal">
   <span class="modal-close" onclick="closeModal()">X</span>
   <img id="modalImage" src="">
+  
+  <div class="modal-nav">
+    <button class="modal-btn" onclick="prevImg()">Prev</button>
+    <button class="modal-btn" onclick="nextImg()">Next</button>
+  </div>
 </div>
 
 <script>
-  function openModal(src) {
-    document.getElementById("modalImage").src = src;
+  let currentImages = [];
+  let currentIndex = 0;
+
+  function openModal(imgArray) {
+    currentImages = imgArray;
+    currentIndex = 0;
+    document.getElementById("modalImage").src = imgArray[0];
     document.getElementById("imgModal").style.display = "flex";
   }
 
@@ -68,20 +119,25 @@
     document.getElementById("imgModal").style.display = "none";
   }
 
-  const IMAGES = {
-    "Tap-Counter-Unity-Game": "tap.png",
-    "portfolio-website": "portfolio.png",
-    "MyAnotherGame": "game2.png"
-  };
+  function nextImg() {
+    currentIndex = (currentIndex + 1) % currentImages.length;
+    document.getElementById("modalImage").src = currentImages[currentIndex];
+  }
 
+  function prevImg() {
+    currentIndex = (currentIndex - 1 + currentImages.length) % currentImages.length;
+    document.getElementById("modalImage").src = currentImages[currentIndex];
+  }
+
+  // AUTO LOAD IMAGES AND PROJECTS
   fetch("https://api.github.com/users/ammar-shaikh07/repos")
     .then(res => res.json())
-    .then(data => {
+    .then(async data => {
       let box = document.getElementById("projects");
 
-      data.forEach(repo => {
-        if (repo.fork) return;
-        if (repo.name.toLowerCase().includes("portfolio")) return;
+      for (const repo of data) {
+        if (repo.fork) continue;
+        if (repo.name.toLowerCase().includes("portfolio")) continue;
 
         let isWebsite = repo.has_pages;
         let isGame = false;
@@ -91,9 +147,24 @@
           isGame = true;
         }
 
-        let apkURL = `https://raw.githubusercontent.com/ammar-shaikh07/${repo.name}/main/Tap-Counter.apk`;
+        // Detect Releases APK
+        let apkURL = "";
+        if (isGame) {
+          apkURL = `https://github.com/ammar-shaikh07/${repo.name}/releases/latest/download/Tap-Counter.apk`;
+        }
+
         let liveURL = `https://ammar-shaikh07.github.io/${repo.name}/`;
-        let imgSrc = IMAGES[repo.name] ? `images/${IMAGES[repo.name]}` : null;
+
+        // AUTO Image Loader: checks images/1.png, 2.png, 3.png...
+        let imageList = [];
+        for (let i = 1; i <= 10; i++) {
+          let imgURL = `https://raw.githubusercontent.com/ammar-shaikh07/${repo.name}/main/images/${i}.png`;
+
+          try {
+            let res = await fetch(imgURL);
+            if (res.ok) imageList.push(imgURL);
+          } catch (e) {}
+        }
 
         box.innerHTML += `
           <article class="card">
@@ -101,14 +172,21 @@
             <p>${repo.description || "No description available"}</p>
             <p class="meta">Updated: ${new Date(repo.updated_at).toDateString()}</p>
 
-            ${imgSrc ? `<button onclick="openModal('${imgSrc}')">Preview Images</button>` : ""}
+            ${imageList.length > 0 ? 
+              `<button class="preview-btn" onclick='openModal(${JSON.stringify(imageList)})'>
+                Preview Images
+              </button>` : ""
+            }
 
-            <a href="${repo.html_url}" target="_blank">View Code →</a>
+            <br>
+
+            <a href="${repo.html_url}" target="_blank">View Code →</a><br>
+
             ${isWebsite ? `<a href="${liveURL}" target="_blank">Live Website →</a>` : ""}
             ${isGame ? `<a href="${apkURL}" download>Download APK →</a>` : ""}
           </article>
         `;
-      });
+      }
     });
 </script>
 
