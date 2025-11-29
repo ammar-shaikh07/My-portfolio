@@ -5,60 +5,106 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Projects — Shaikh Mohammad Ammar</title>
   <link rel="stylesheet" href="style.css">
+
+  <style>
+    /* Popup Image Viewer */
+    #popup {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.8);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+    #popup img {
+      max-width: 90%;
+      max-height: 90%;
+      border-radius: 10px;
+    }
+    #popup-close {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      font-size: 30px;
+      color: white;
+      cursor: pointer;
+    }
+  </style>
+
 </head>
 
 <body>
-  <header class="nav">
-        <a href="index.html">Home</a>
-        <a href="skills.html">Skills</a>
-        <a href="projects.html">Projects</a>
-        <a href="about.html">About</a>
-        <a href="contact.html">Contact</a>
-    </nav>
-
+<header class="nav">
+    <a href="index.html">Home</a>
+    <a href="skills.html">Skills</a>
+    <a href="projects.html">Projects</a>
+    <a href="about.html">About</a>
+    <a href="contact.html">Contact</a>
 </header>
 
-  <main class="page">
-    <h2>Projects</h2>
-    <div id="projects" class="projects"></div>
-  </main>
+<main class="page">
+  <h2>Projects</h2>
+  <div id="projects" class="projects"></div>
+</main>
 
-  <footer class="footer">© 2025 Shaikh Mohammad Ammar</footer>
+<footer class="footer">© 2025 Shaikh Mohammad Ammar</footer>
 
-  <script>
-    fetch("https://api.github.com/users/ammar-shaikh07/repos")
-      .then(res => res.json())
-      .then(data => {
-        let box = document.getElementById("projects");
+<!-- Image Preview Popup -->
+<div id="popup">
+  <span id="popup-close">✖</span>
+  <img id="popup-img" src="">
+</div>
 
-        data.forEach(repo => {
-          if (repo.fork) return;
-          if (repo.name.toLowerCase().includes("portfolio")) return;
+<script>
+  fetch("https://api.github.com/users/ammar-shaikh07/repos")
+    .then(res => res.json())
+    .then(data => {
+      let box = document.getElementById("projects");
 
-          let isWebsite = repo.has_pages;
-          let isGame = false;
+      data.forEach(repo => {
+        if (repo.fork) return;
+        if (repo.name.toLowerCase().includes("portfolio")) return;
 
-          if (repo.name === "Tap-Counter-Unity-Game") {
-            isWebsite = false;
-            isGame = true;
-          }
+        let isWebsite = repo.has_pages;
+        let isGame = false;
 
-          let apkURL = `https://raw.githubusercontent.com/ammar-shaikh07/${repo.name}/main/Tap-Counter.apk`;
-          let liveURL = `https://ammar-shaikh07.github.io/${repo.name}/`;
+        if (repo.name === "Tap-Counter-Unity-Game") {
+          isWebsite = false;
+          isGame = true;
+        }
 
-          box.innerHTML += `
-            <article class="card">
-              <h3>${repo.name}</h3>
-              <p>${repo.description || "No description available"}</p>
-              <p class="meta">Updated: ${new Date(repo.updated_at).toDateString()}</p>
+        let previewImage = `https://raw.githubusercontent.com/ammar-shaikh07/${repo.name}/main/preview.png`;
+        let apkURL = `https://github.com/ammar-shaikh07/${repo.name}/releases/latest/download/Tap-Counter.apk`;
+        let liveURL = `https://ammar-shaikh07.github.io/${repo.name}/`;
 
-              <a href="${repo.html_url}" target="_blank">View Code →</a>
-              ${isWebsite ? `<a href="${liveURL}" target="_blank">Live Website →</a>` : ""}
-              ${isGame ? `<a href="${apkURL}" download>Download APK →</a>` : ""}
-            </article>
-          `;
-        });
+        box.innerHTML += `
+          <article class="card">
+            <h3>${repo.name}</h3>
+            <p>${repo.description || "No description available"}</p>
+            <p class="meta">Updated: ${new Date(repo.updated_at).toDateString()}</p>
+
+            <button onclick="showPreview('${previewImage}')">Preview Image</button>
+
+            <a href="${repo.html_url}" target="_blank">View Code →</a>
+            ${isWebsite ? `<a href="${liveURL}" target="_blank">Live Website →</a>` : ""}
+            ${isGame ? `<a href="${apkURL}" download>Download APK →</a>` : ""}
+          </article>
+        `;
       });
-  </script>
+    });
+
+  // Image Popup Logic
+  function showPreview(imgURL) {
+    document.getElementById("popup-img").src = imgURL;
+    document.getElementById("popup").style.display = "flex";
+  }
+
+  document.getElementById("popup-close").addEventListener("click", () => {
+    document.getElementById("popup").style.display = "none";
+  });
+</script>
+
 </body>
 </html>
