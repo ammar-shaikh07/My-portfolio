@@ -129,52 +129,51 @@
     document.getElementById("modalImage").src = currentImages[currentIndex];
   }
 
-  // AUTO LOAD IMAGES AND PROJECTS
+  // AUTO LOAD PROJECTS
   fetch("https://api.github.com/users/ammar-shaikh07/repos")
     .then(res => res.json())
-    .then(async data => {
+    .then(async repos => {
       let box = document.getElementById("projects");
 
-      for (const repo of data) {
+      for (let repo of repos) {
         if (repo.fork) continue;
         if (repo.name.toLowerCase().includes("portfolio")) continue;
 
-        let isWebsite = repo.has_pages;
-        let isGame = false;
-
-        if (repo.name === "Tap-Counter-Unity-Game") {
-          isWebsite = false;
-          isGame = true;
-        }
-
-        // Detect Releases APK
-        let apkURL = "";
-        if (isGame) {
-  apkURL = `https://github.com/ammar-shaikh07/${repo.name}/releases/download/v1.0/Tap-Counter.apk`;
-}
-
         let liveURL = `https://ammar-shaikh07.github.io/${repo.name}/`;
 
-        // AUTO Image Loader: checks images/1.png, 2.png, 3.png...
-        let imageList = [];
+        // 🟢 AUTO IMAGE LOADING
+        let images = [];
         for (let i = 1; i <= 10; i++) {
           let imgURL = `https://raw.githubusercontent.com/ammar-shaikh07/${repo.name}/main/images/${i}.png`;
 
           try {
-            let res = await fetch(imgURL);
-            if (res.ok) imageList.push(imgURL);
+            let check = await fetch(imgURL);
+            if (check.ok) images.push(imgURL);
           } catch (e) {}
         }
 
+        // 🟢 AUTO APK DETECTION
+        let apkURL = "";
+        try {
+          let rel = await fetch(`https://api.github.com/repos/ammar-shaikh07/${repo.name}/releases`);
+          let releaseData = await rel.json();
+
+          if (releaseData.length > 0 && releaseData[0].assets.length > 0) {
+            let apk = releaseData[0].assets.find(a => a.name.endsWith(".apk"));
+            if (apk) apkURL = apk.browser_download_url;
+          }
+        } catch (e) {}
+
+        // Append Card
         box.innerHTML += `
           <article class="card">
             <h3>${repo.name}</h3>
             <p>${repo.description || "No description available"}</p>
             <p class="meta">Updated: ${new Date(repo.updated_at).toDateString()}</p>
 
-            ${imageList.length > 0 ? 
-              `<button class="preview-btn" onclick='openModal(${JSON.stringify(imageList)})'>
-                Preview Images
+            ${images.length > 0 ? `
+              <button class="preview-btn" onclick='openModal(${JSON.stringify(images)})'>
+                View Images
               </button>` : ""
             }
 
@@ -182,13 +181,15 @@
 
             <a href="${repo.html_url}" target="_blank">View Code →</a><br>
 
-            ${isWebsite ? `<a href="${liveURL}" target="_blank">Live Website →</a>` : ""}
-            ${isGame ? `<a href="${apkURL}" download>Download APK →</a>` : ""}
+            ${repo.has_pages ? `<a href="${liveURL}" target="_blank">Live Website →</a>` : ""}
+
+            ${apkURL ? `<a href="${apkURL}" download>Download APK →</a>` : ""}
           </article>
         `;
       }
     });
 </script>
+
 
 </body>
 </html>
