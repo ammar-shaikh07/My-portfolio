@@ -72,7 +72,6 @@
       cursor: pointer;
       font-weight: bold;
     }
-
   </style>
 </head>
 
@@ -97,7 +96,7 @@
 <div id="imgModal" class="modal">
   <span class="modal-close" onclick="closeModal()">X</span>
   <img id="modalImage" src="">
-  
+
   <div class="modal-nav">
     <button class="modal-btn" onclick="prevImg()">Prev</button>
     <button class="modal-btn" onclick="nextImg()">Next</button>
@@ -129,7 +128,7 @@
     document.getElementById("modalImage").src = currentImages[currentIndex];
   }
 
-  // AUTO LOAD PROJECTS
+  // LOAD PROJECTS
   fetch("https://api.github.com/users/ammar-shaikh07/repos")
     .then(res => res.json())
     .then(async repos => {
@@ -141,7 +140,7 @@
 
         let liveURL = `https://ammar-shaikh07.github.io/${repo.name}/`;
 
-        // 🟢 AUTO IMAGE LOADING
+        // AUTO IMAGE DETECTION
         let images = [];
         for (let i = 1; i <= 10; i++) {
           let imgURL = `https://raw.githubusercontent.com/ammar-shaikh07/${repo.name}/main/images/${i}.png`;
@@ -152,7 +151,7 @@
           } catch (e) {}
         }
 
-        // 🟢 AUTO APK DETECTION
+        // APK CHECK (for games)
         let apkURL = "";
         try {
           let rel = await fetch(`https://api.github.com/repos/ammar-shaikh07/${repo.name}/releases`);
@@ -164,7 +163,7 @@
           }
         } catch (e) {}
 
-        // Append Card
+        // CARD
         box.innerHTML += `
           <article class="card">
             <h3>${repo.name}</h3>
@@ -181,16 +180,16 @@
 
             <a href="${repo.html_url}" target="_blank">View Code →</a><br>
 
-            ${repo.has_pages ? `<a href="${liveURL}" target="_blank">Live Website →</a>` : ""}
+            ${(!apkURL && repo.has_pages) ? 
+              `<a href="${liveURL}" target="_blank">Live Website →</a>` 
+              : ""}
 
             ${apkURL ? `<a href="${apkURL}" download>Download APK →</a>` : ""}
           </article>
         `;
       }
     });
-</script> 
-
-
+</script>
 
 </body>
 </html>
